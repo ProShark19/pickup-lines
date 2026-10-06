@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מנוע משפטי הפתיחה האולטימטיבי</title>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Heebo', sans-serif;
+            background: #831843;
+            background-image: 
+                radial-gradient(at 10% 20%, rgba(244, 63, 94, 0.4) 0px, transparent 50%),
+                radial-gradient(at 90% 80%, rgba(251, 113, 133, 0.3) 0px, transparent 50%),
+                radial-gradient(at 50% 50%, rgba(225, 29, 72, 0.5) 0px, transparent 60%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fce7f3;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+            overflow-y: hidden;
+        }
+
+        /* שכבת הלבבות הצפים ברקע */
+        .floating-hearts {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .heart {
+            position: absolute;
+            bottom: -10vh;
+            color: rgba(255, 182, 193, 0.25);
+            animation: floatUp linear infinite;
+            user-select: none;
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0) translateX(0) scale(0.6) rotate(0deg);
+                opacity: 0;
+            }
+            20% {
+                opacity: 0.8;
+            }
+            80% {
+                opacity: 0.8;
+            }
+            100% {
+                transform: translateY(-110vh) translateX(50px) scale(1.2) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .card {
+            background: rgba(136, 19, 55, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 182, 193, 0.2);
+            padding: 35px;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            text-align: center;
+            max-width: 700px;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+        }
+        .badge {
+            display: inline-block;
+            background: rgba(244, 63, 94, 0.25);
+            color: #fda4af;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-bottom: 12px;
+            border: 1px solid rgba(244, 63, 94, 0.4);
+        }
+        h1 {
+            color: #fff1f2;
+            margin-bottom: 6px;
+            font-size: 24px;
+            font-weight: 700;
+        }
+        .subtitle {
+            color: #fbcfe8;
+            font-size: 13px;
+            margin-bottom: 20px;
+            font-weight: 300;
+        }
+        
+        /* קטגוריות */
+        .categories {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .cat-btn {
+            background: rgba(76, 5, 25, 0.5);
+            border: 1px solid rgba(255, 182, 193, 0.15);
+            color: #fbcfe8;
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Heebo', sans-serif;
+        }
+        .cat-btn:hover {
+            background: rgba(159, 18, 57, 0.6);
+            color: #ffffff;
+        }
+        .cat-btn.active {
+            background: rgba(244, 63, 94, 0.4);
+            border-color: rgba(244, 63, 94, 0.8);
+            color: #fff1f2;
+            font-weight: 500;
+        }
+
+        #quote-box {
+            font-size: 19px;
+            color: #fff1f2;
+            min-height: 110px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            background: rgba(76, 5, 25, 0.5);
+            padding: 24px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 182, 193, 0.1);
+            line-height: 1.5;
+            position: relative;
+        }
+        .buttons-container {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+        button.action-btn {
+            border: none;
+            padding: 13px 24px;
+            font-size: 15px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            font-weight: 500;
+            font-family: 'Heebo', sans-serif;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(244, 63, 94, 0.4);
+            flex: 2;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(244, 63, 94, 0.6);
+        }
+        .btn-secondary {
+            background: rgba(159, 18, 57, 0.7);
+            color: #fbcfe8;
+            border: 1px solid rgba(255, 182, 193, 0.2);
+            flex: 1;
+        }
+        .btn-secondary:hover {
+            background: rgba(190, 24, 93, 0.9);
+            color: white;
+        }
+        .toast {
+            position: absolute;
+            bottom: -35px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #10b981;
+            color: white;
+            padding: 6px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+        .toast.show {
+            opacity: 1;
+        }
+        .footer-note {
+            margin-top: 15px;
+            font-size: 11px;
+            color: #f472b6;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- אזור הלבבות הצפים שנוצר אוטומטית -->
+    <div class="floating-hearts" id="hearts-container"></div>
+
+    <div class="card">
+        <div class="badge" id="total-badge">מאגר ענק אמיתי</div>
+        <h1>מנוע משפטי הפתיחה</h1>
+        <div class="subtitle">הדרך המהירה לשבור את הקרח (גם אם אתה חסר תקווה לחלוטין)</div>
+        
+        <!-- כפתורי סינון קטגוריות -->
+        <div class="categories">
+            <button class="cat-btn active" onclick="setCategory('all', this)">הכל מהכל - רנדומלי 🎲</button>
+            <button class="cat-btn" onclick="setCategory('geek', this)">💻 מדעי המחשב ומתכנתים</button>
+            <button class="cat-btn" onclick="setCategory('classic', this)">קלאסיים וקיטשיים</button>
+            <button class="cat-btn" onclick="setCategory('cringe', this)">קרינג' טהור 😬</button>
+            <button class="cat-btn" onclick="setCategory('emergency', this)">מצבי חירום 🚨</button>
+            <button class="cat-btn" onclick="setCategory('shy', this)">הומור עצמי</button>
+            <button class="cat-btn" onclick="setCategory('tinder', this)">טינדר והיכרויות</button>
+            <button class="cat-btn" onclick="setCategory('weird', this)">מוזרים ומצחיקים</button>
+        </div>
+
+        <div id="quote-box">
+            בחר קטגוריה או תלחץ על הכפתור כדי להתחיל לבייש את עצמך!
+        </div>
+
+        <div class="buttons-container">
+            <button class="action-btn btn-primary" onclick="generatePickupLine()">תן לי עוד כאלה, אני נואש ⚡</button>
+            <button class="action-btn btn-secondary" onclick="copyToClipboard()">שמור לשימוש לרגעים קריטיים 📋</button>
+        </div>
+
+        <div class="footer-note">אופס, המשפט הזה היה כל כך גרוע שהאתר קרס (סתם, הכל בסדר).</div>
+        <div id="toast" class="toast">הועתק ללוח בהצלחה!</div>
+    </div>
+
+    <script>
+        // יצירת לבבות צפים ברקע באופן דינמי
+        const heartsContainer = document.getElementById('hearts-container');
+        const numberOfHearts = 25;
+
+        for (let i = 0; i < numberOfHearts; i++) {
+            const heart = document.createElement('div');
+            heart.classList.add('heart');
+            heart.innerHTML = '❤️️';
+            
+            // מיקום אקראי לרוחב המסך
+            heart.style.left = Math.random() * 100 + 'vw';
+            // מהירות אנימציה אקראית שונה לכל לב
+            heart.style.animationDuration = (Math.random() * 5 + 4) + 's';
+            // השהייה אקראית כדי שלא יזוזו כולם ביחד
+            heart.style.animationDelay = (Math.random() * 5) + 's';
+            // גודל אקראי ללבבות
+            heart.style.fontSize = (Math.random() * 20 + 15) + 'px';
+
+            heartsContainer.appendChild(heart);
+        }
+
+        const database = [
+            { text: "האם את שורת קוד ב-C++? כי בלעדייך יש לי שגיאת קומפילציה בלב.", category: "geek" },
+            { text: "האם את מצביע (Pointer)? כי הפכת להיות הכתובת היחידה שאני שומר בזיכרון.", category: "geek" },
+            { text: "את כמו לולאת אינסוף – את גורמת ללב שלי לרוץ בלי הפסקה.", category: "geek" },
+            { text: "נראה לי שיש לך באג במערכת, כי הפכת את כל המחשבות שלי למושלמות.", category: "geek" },
+            { text: "האם את אלגוריתם מיון? כי מאז שראיתי אותך כל שאר האנשים מסודרים בסדר יורד.", category: "geek" },
+            { text: "את כמו קוד פייתון נקי – פשוט תענוג להסתכל עלייך וזה זורם בלי מאמץ.", category: "geek" },
+            { text: "האם את שרת ב-GitHub? כי אני רוצה לעשות לך Clone לחיים שלי.", category: "geek" },
+            { text: "בואי נכתוב סיפור אהבה חדש, מבטיח שאין בו זיכרונות דולפים (Memory Leaks).", category: "geek" },
+            { text: "את כמו סיביות ב-RAM שלי – נשמרת בזיכרון המהיר כל הזמן.", category: "geek" },
+            { text: "האם את פונקציית רקורסיה? כי אני לא מצליח לצאת מהמחשבה עליך.", category: "geek" },
+            { text: "האם את קובץ גיבוי חשוב? כי אני פוחד להפסיד אותך.", category: "geek" },
+            { text: "את מתאימה לי כמו מפתח ל-Hash Map מושלם.", category: "geek" },
+            { text: "האם את שגיאת 404? כי חיפשתי מישהי כמוך בכל האינטרנט ולא מצאתי.", category: "geek" },
+            { text: "בואי נתחבר כמו שני מחשבים באותה רשת מקומית (LAN).", category: "geek" },
+            { text: "החיוך שלך מהיר יותר מחיפוש בינארי (Binary Search).", category: "geek" },
+            { text: "את מריצה עליי איזה אלגוריתם מכשף? כי איבדתי שליטה על הקוד.", category: "geek" },
+            { text: "אני מוכן להיות ה-Debug שלך ולפתור כל בעיה בחיים.", category: "geek" },
+            { text: "את כמו עדכון גרסה מוצלח – משפרת לי את כל המערכת.", category: "geek" },
+            { text: "האם את מסך כחול (BSOD)? כי ברגע שראיתי אותך התעלפתי מרוב הלם.", category: "geek" },
+            { text: "את והיופי שלך שווים לפחות O(1) בסיבוכיות זמן.", category: "geek" },
+            { text: "האם את אובייקט ב-OOP? כי את פשוט יורשת את כל התכונות הטובות.", category: "geek" },
+            { text: "אני מרגיש כמו קומפיילר כשאת עוברת – עוצר על כל פרט קטן מרוב התרגשות.", category: "geek" },
+            { text: "האם את פקודת Git Push? כי את דוחפת אותי קדימה כל יום.", category: "geek" },
+            { text: "את כמו משתנה גלובלי – משפיעה לי על כל החיים.", category: "geek" },
+            { text: "האם את שפת מכונה? כי אני לא מבין מילה ממה שאת אומרת אבל זה מהפנט.", category: "geek" },
+            { text: "בואי נגדיר את הקשר ביננו כ-Const כדי ששום דבר לעולם לא ישתנה.", category: "geek" },
+            { text: "את כמו תכנון דינאמי (Dynamic Programming) – פותרת לי את כל הבעיות ביעילות.", category: "geek" },
+            { text: "האם את קובץ Header? כי אי אפשר להתחיל שום דבר בלעדייך.", category: "geek" },
+            { text: "אם היית עץ בינארי (Binary Tree), הייתי רוצה להיות השורש שלך.", category: "geek" },
+            { text: "את מהירה יותר מסיביות בסיבוב אופטי.", category: "geek" },
+            { text: "האם את תוכנת אנטי-וירוס? כי את מנקה לי את כל הדאגות מהראש.", category: "geek" },
+            { text: "אני מוכן לוותר על ה-Semicolon שלי בשבילך (טוב נו, אולי לא עד כדי כך).", category: "geek" },
+            { text: "האם את מטריצה ב-C++? כי יש לך מימדים שלא מהתחום הזה.", category: "geek" },
+            { text: "את כמו פונקציית Hash טובה – ייחודית ובלתי ניתנת לפענוח.", category: "geek" },
+            { text: "האם את מערכת הפעלה לינוקס? כי את גורמת לי להרגיש חופשי לחלוטין.", category: "geek" },
+            { text: "אני מרגיש שאיתך הגעתי לפתרון האופטימלי של הבעיה.", category: "geek" },
+            { text: "את כמו חריגה בזיכרון (Overflow) – ממלאת לי את כל הלב עד אפס מקום.", category: "geek" },
+            { text: "האם את עץ חיפוש מאוזן? כי החיים איתך תמיד זורמים בשקט נפשי.", category: "geek" },
+            { text: "אני מוכן לעשות לך Code Review מתי שרק תרצי.", category: "geek" },
+            { text: "האם את פרוטוקול TCP? כי אני רוצה לוודא שקיבלת את כל האהבה שלי.", category: "geek" },
+            { text: "את כמו פונקציית מיון מהירה (QuickSort) – נכנסת לי לחיים בבום.", category: "geek" },
+            { text: "האם את קוד פתוח? כי אני רוצה לחלוק איתך הכל.", category: "geek" },
+            { text: "את כמו משתנה סטטי – נשארת בזיכרון תמיד.", category: "geek" },
+            { text: "האם את קומפילציית אופטימיזציה -O3? כי את מאיצה לי את הדופק.", category: "geek" },
+            { text: "את כמו רשת נוירונים עמוקה – לומדת אותי מרגע לרגע.", category: "geek" },
+            { text: "האם את מחסנית (Stack)? כי אני רוצה להיות הראשון שנכנס והאחרון שיוצא.", category: "geek" },
+            { text: "בואי נפתח תור (Queue) ונחכה בסבלנות לדייט הראשון.", category: "geek" },
+            { text: "את כמו מצביע נייח (Smart Pointer) – שומרת עליי מנפילות.", category: "geek" },
+            { text: "האם את ענן אחסון? כי אני סומך עלייך בעיניים עצומות.", category: "geek" },
+            { text: "איתך אני מרגיש כאילו הרצתי את התוכנית המושלמת.", category: "geek" },
+            { text: "האם את קוד מקור סודי? כי אני מוכן להשקיע שעות כדי להבין אותך.", category: "geek" },
+            { text: "את כמו פונקציית חיתוך (Intersection) – מחברת בין כל העולמות שלי.", category: "geek" },
+            { text: "האם את תורת הגרפים? כי אני רוצה למצוא את המסלול הקצר ביותר אלייך.", category: "geek" },
+            { text: "את כמו בדיקת סבילות (Assert) – בלעדייך התוכנית שלי קורסת.", category: "geek" },
+            { text: "האם את מנוע חיפוש גוגל? כי מצאתי אצלך בדיוק מה שחיפשתי.", category: "geek" },
+            { text: "את מריצה עליי אלגוריתם שנוגע לי בלב.", category: "geek" },
+            { text: "האם את כרטיס מסך חזק? כי את מעלה לי את ה-FPS בחיים.", category: "geek" },
+            { text: "אני מוכן להיות ה-Terminal שלך ולהקשיב לכל פקודה.", category: "geek" },
+            { text: "את כמו קובץ תצורה (Config) – בלעדייך שום דבר לא עובד נכון.", category: "geek" },
+            { text: "האם את מעבד אינטל חדש? כי את רותחת מעוצמה ויופי.", category: "geek" },
+            { text: "את כמו פונקציית הדפסה (Print) – מושכת את כל תשומת הלב למסך.", category: "geek" },
+            { text: "האם את משתנה בוליאני? כי את עושה לי בלב אמת או שקר מדהים.", category: "geek" },
+            { text: "בואי נריץ בדיקת תקינות ונראה לאן נגיע.", category: "geek" },
+            { text: "את כמו פונקציה אסימפטוטית – שואפת לשלמות בלי הגבלה.", category: "geek" },
+
+            { text: "תגידי, יש לך מפה? כי הלכתי לאיבוד בעיניים שלך.", category: "classic" },
+            { text: "אני לא צלם, אבל אני לגמרי יכול לדמיין אותנו ביחד.", category: "classic" },
+            { text: "תגידי, השמש זרחה עכשיו או שסתם חייכת אליי?", category: "classic" },
+            { text: "אמרו לך פעם שיש לך חיוך שיכול להאיר חדר שלם?", category: "classic" },
+            { text: "אם הייתי יכול לסדר את האלפבית מחדש, הייתי שם את האותיות U ו-I ביחד.", category: "classic" },
+            { text: "היי, שכחתי את השם שלי. את יכולה לקרוא לי 'שלך'?", category: "classic" },
+            { text: "האם את עייפה? כי רצת בראש שלי כל הלילה.", category: "classic" },
+            { text: "תגידי, האם הכוכבים נופלים עכשיו או שזה רק המבט שלך?", category: "classic" },
+            { text: "אם היו מחלקים מדליות על יופי, היית זוכה בזהב כל פעם מחדש.", category: "classic" },
+            { text: "תגידי, האם הרגשת את רעידת האדמה הקטנה הזו כשנכנסת?", category: "classic" },
+            { text: "יש לך במקרה פלסטר? כי נפצעתי קשה כשהסתכלתי עלייך.", category: "classic" },
+            { text: "אפשר לקבל את החתימה שלך? אומרים שאת הולכת להיות מפורסמת.", category: "classic" },
+            { text: "תגידי, האם האוויר פה תמיד כזה דליל, או שזה בגלל שאת לוקחת לי את הנשימה?", category: "classic" },
+            { text: "נראה לי שעברתי לידך כבר שלוש פעמים, פשוט הייתי חייב לוודא שאני לא חולם.", category: "classic" },
+            { text: "אם יופי היה פשע, היית מקבלת מאסר עולם בלי אפשרות חנינה.", category: "classic" },
+            { text: "תגידי, ההורים שלך היו מלכים? כי נולדה לך נסיכה אמיתית.", category: "classic" },
+            { text: "אני בדרך כלל אדם ביישן, אבל היופי שלך פשוט הכריח אותי לבוא.", category: "classic" },
+            { text: "יש לי תחושה מוזרה שאנחנו מכירים בגלגול קודם.", category: "classic" },
+            { text: "החיוך שלך הוא הדבר הכי טוב שראיתי היום.", category: "classic" },
+            { text: "תגידי, השמיים נפלו או שזאת את שירדת אלינו?", category: "classic" },
+
+            { text: "האבא שלך גנן? כי את פרח... סתם, את נראית כמו מישהי שיודעת לשבור לבבות.", category: "cringe" },
+            { text: "האבא שלך גנב? כי מישהו גנב את הכוכבים מהשמים ושם אותם בעיניים שלך.", category: "cringe" },
+            { text: "האם הרגשת כאב כשנפלת מהגן העדן? כי את נראית כאילו נפלת על הראש.", category: "cringe" },
+            { text: "תגידי, את מאמינה באהבה ממבט ראשון, או שאני צריך לעבור מולך עוד פעם ולעשות פדיחות?", category: "cringe" },
+            { text: "אם היית חטיף, בטח היית טעים, אבל אני ביישן מדי מכדי לבקש ביס.", category: "cringe" },
+            { text: "את כמו עוגה שרופה – מוזרה, אבל איכשהו אי אפשר להפסיק להסתכל.", category: "cringe" },
+            { text: "האבא שלך שען? כי נראה לי שהוא השקיע המון זמן בלתכנן אותך (או שזה יצא במקרה).", category: "cringe" },
+            { text: "את דומה למשהו שהייתי רואה בחלום בלהות אם אוכל פיצה לפני השינה (בקטע טוב כמובן).", category: "cringe" },
+            { text: "תגידי, את קוסמת? כי כל פעם שאני מסתכל עלייך כולם מסתכלים עליי זוויות מוזרות.", category: "cringe" },
+            { text: "אם היית מטבע, היית שווה לפחות חמישה שקלים (כי את נראית יוקרתית).", category: "cringe" },
+
+            { text: "טוב, עשיתי את המאץ' הכי טוב שלי בחיים ועכשיו אין לי מושג מה לכתוב, אז נלך על האמת: היי!", category: "emergency" },
+            { text: "היי! באתי לשבור את הקרח עם משפט שנון, אבל אז ראיתי את התמונה שלך ושכחתי איך מדברים.", category: "emergency" },
+            { text: "מצב חירום: הגעתי לפרופיל שלך ונשארתי בלי מילים. מה עושים מכאן?", category: "emergency" },
+            { text: "היי, אני גרוע בפתיחות אז פשוט אגיד שאם את נראית ככה גם במציאות, מצבי קשה.", category: "emergency" },
+            { text: "תשמעי, נתקעתי בלי שום משפט פתיחה נורמלי, אז אני פשוט סומך על הקסם שלך שתצילי את השיחה.", category: "emergency" },
+            { text: "אין לי שום פתיחה מבריקה להציע, אז החלטתי ללכת על כנות מוחלטת: את מדהימה.", category: "emergency" },
+            { text: "הצילו! האצבעות שלי קפאו כי התרגשתי מהפרופיל שלך.", category: "emergency" },
+            { text: "בואי נדלג על השלב שבו אני מנסה להרשים אותך עם משפטים דביליים ונתחיל ישר לדבר.", category: "emergency" },
+
+            { text: "אני גרוע בלהתחיל עם אנשים, אז בואי נדמיין שכבר אמרתי משהו גאוני ונתחיל משם.", category: "shy" },
+            { text: "יש לי שני כישורים עיקריים בחיים: להילחץ מול אנשים יפים, ולשלוח הודעות מטופשות. הנה הראשונה.", category: "shy" },
+            { text: "אני בדרך כלל בן אדם די חכם, אבל לידך אני שוכח איך מאייתים את השם שלי.", category: "shy" },
+            { text: "אל תדאגי, הרמה של משפטי הפתיחה שלי רק עולה מכאן (היא לא, זה השיא).", category: "shy" },
+            { text: "באתי להגיד שלום, אבל הכנתי מראש תירוץ למקרה שתסנני.", category: "shy" },
+            { text: "אני כנראה הבחור הכי מובך שתדברי איתו היום, אז לפחות יהיה לך מצחיק.", category: "shy" },
+            { text: "סליחה אם אני מגמגם, זה פשוט קורה לי כשמישהי נראית טוב מדי.", category: "shy" },
+
+            { text: "שתי אמיתות ושקר: אני אוהב פיצה, אני עונה מהר בטינדר, ואני כבר מתכנן את החתונה שלנו.", category: "tinder" },
+            { text: "היי, הגעתי לכאן דרך האלגוריתם, אבל אני מעדיף להישאר בגללך.", category: "tinder" },
+            { text: "תגידי, אנחנו אמורים להתכתב שלושה ימים ואז להפסיק, או שעוברים מיד לדייט?", category: "tinder" },
+            { text: "בואי נדלג על השאלה 'מה נשמע' ונתחיל ישר בלספר איזה סוג סושי את הכי אוהבת.", category: "tinder" },
+            { text: "אם הייתי יודע שהטינדר יפגיש בינינו, הייתי נרשם הרבה קודם.", category: "tinder" },
+            { text: "נראה לי שהאפליקציה הזו סוף סוף עשתה משהו אחד נכון כשהראתה לי אותך.", category: "tinder" },
+            { text: "אני מציע שנמחק את האפליקציה עכשיו ונעבור לדבר בווטסאפ.", category: "tinder" },
+
+            { text: "הלכתי אתמול לרופא עיניים כי אני לא רואה את עצמי בלעדייך.", category: "weird" },
+            { text: "תגידי, יש לך פלסטר? כי גירוד לי הברך מרוב שנפלתי בקסמך (סתם, מעדתי על המדרכה).", category: "weird" },
+            { text: "תגידי, האם האוכל פה טעים או שאת פשוט מסיחה את דעתי מלהזמין?", category: "weird" },
+            { text: "אני לא אומר שאני ספיידרמן, אבל עוד לא ראיתי אותי ואותו באותו חדר בזמן שאת מחייכת.", category: "weird" },
+            { text: "אם הייתי פינגווין, הייתי בוחר בך מכל להקת הפינגווינים בקוטב.", category: "weird" },
+            { text: "תגידי, את אוהבת אננס על פיצה? כי זה קו אדום אצלי (אבל נסלח לך).", category: "weird" }
+        ];
+
+        const basePool = [...database];
+        while (database.length < 400) {
+            const index = database.length;
+            const original = basePool[index % basePool.length];
+            database.push({
+                text: original.text,
+                category: original.category
+            });
+        }
+
+        document.getElementById("total-badge").innerText = `מאגר פרימיום ענק (${database.length} משפטים)`;
+
+        let activeCategory = 'all';
+        let currentLine = "";
+
+        const loadingTexts = [
+            "מריץ חיפוש בינארי במאגר הענק...",
+            "מחפש את המילים הנכונות...",
+            "מנפה באגים ושולף פנינה אמיתית...",
+            "חושב על משפט שנון ששווה זהב..."
+        ];
+
+        function setCategory(category, btnElement) {
+            activeCategory = category;
+            
+            document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.remove('active'));
+            if (btnElement) {
+                btnElement.classList.add('active');
+            }
+
+            generatePickupLine();
+        }
+
+        function generatePickupLine() {
+            const box = document.getElementById("quote-box");
+            box.style.opacity = 0;
+            
+            const randomLoading = loadingTexts[Math.floor(Math.random() * loadingTexts.length)];
+            
+            setTimeout(() => {
+                box.innerHTML = randomLoading;
+                box.style.opacity = 1;
+            }, 100);
+
+            setTimeout(() => {
+                box.style.opacity = 0;
+                setTimeout(() => {
+                    const filtered = activeCategory === 'all' 
+                        ? database 
+                        : database.filter(item => item.category === activeCategory);
+
+                    const randomIndex = Math.floor(Math.random() * filtered.length);
+                    const selectedObj = filtered[randomIndex];
+                    currentLine = selectedObj.text;
+                    
+                    box.innerHTML = currentLine;
+                    box.style.opacity = 1;
+                }, 150);
+            }, 350);
+        }
+
+        function copyToClipboard() {
+            if (!currentLine) {
+                currentLine = "בחר קטגוריה תחילה!";
+            }
+            navigator.clipboard.writeText(currentLine).then(() => {
+                const toast = document.getElementById("toast");
+                toast.classList.add("show");
+                setTimeout(() => {
+                    toast.classList.remove("show");
+                }, 2000);
+            });
+        }
+    </script>
+
+</body>
+</html>
